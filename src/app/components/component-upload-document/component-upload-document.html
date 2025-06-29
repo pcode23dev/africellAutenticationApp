@@ -1,0 +1,28 @@
+<div class="component-camera full-screen">
+    <video #video autoplay playsinline></video>
+    <canvas #canvas hidden></canvas>
+
+    <div class="captura-btn position-absolute start-50 translate-middle" style="top: 85vh;">
+        <button (click)="capturar()" class="btn btn-light rounded-circle shadow-lg" style="width: 50px; height: 50px;">
+            <span class="visually-hidden">Capturar imagem</span>
+        </button>
+    </div>
+    <div class="rounded-top-4 p-3 bg-white position-absolute bottom-0 start-0 w-100 text-center">
+        <h3>
+            Frontal
+        </h3>
+        <p>Tire a foto de front ao teu documento de identificação</p>
+    </div>
+</div>
+
+<!-- 🖼️ Tela de revisão da imagem capturada -->
+<div id="prev" class="preview-container d-none">
+    <img [src]="imagemCapturada" alt="Imagem capturada" />
+
+    <div class="w-100 d-flex flex-column gap-2">
+        <h4 class="text-center">Revisão da imagem</h4>
+        <p class="text-center">Verifique se a imagem está nítida e bem </p>
+        <button class="btn btn-danger col-12" (click)="avancar()">Continuar</button>
+        <button class="btn btn-danger col-12" (click)="repetirFoto()">Tirar de novo</button>
+    </div>
+</div>

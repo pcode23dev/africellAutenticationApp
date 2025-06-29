@@ -1,0 +1,12 @@
+
+@if (seccao === 0) {
+    <app-component-form (onSubmitSection)="nextSection($event)"></app-component-form>
+} @else if (seccao === 1) {
+    <app-component-upload-document (onSubmitSection)="nextSection($event)"></app-component-upload-document>
+} @else if (seccao === 2) {
+    <app-component-self  (onSubmitSection)="nextSection($event)"></app-component-self>
+} @else if (seccao === 3) {
+    <app-component-confirm (onSubmitSection)="nextSection($event)"></app-component-confirm>
+} @else if (seccao === 4) {
+    <app-component-success (onSubmitSection)="nextSection($event)"></app-component-success>
+}

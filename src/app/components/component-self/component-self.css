@@ -1,0 +1,32 @@
+
+.biometria {
+  height: 100vh;
+  padding: 2rem 1rem;
+}
+
+.biometria video {
+  width: 350px;
+  height: 350px;
+  max-width: 400px;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #ffffff1a;
+}
+
+.biometria .mensagem {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.biometria .botao-captura {
+  margin-bottom: 2rem;
+}
+
+#mark {
+  border: #9ac4a7 dotted;
+  border-width: 8px;
+  border-radius: 50%;
+  padding: 10px;
+}
+

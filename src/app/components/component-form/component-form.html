@@ -1,0 +1,40 @@
+<div class="form-section m-4" id="section2">
+    <div class="my-4">
+        <h2 class="">Dados Pessoais</h2>
+        <p class="text-dark-emphasis">Por favor, preencha os seus dados pessoais.</p>
+    </div>
+    <form #formRef="ngForm"  (ngSubmit)="onSubmit(formRef)" id="personalDataForm">
+        <div class="d-flex flex-column">
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><span class="obrigatorio">*</span> Nome</label>
+                <input type="text" class="form-control" id="nome" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Apelido</label>
+                <input type="text" class="form-control" id="apelido">
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><span class="obrigatorio">*</span>Número do BI</label>
+                <input type="text" class="form-control" id="biNumber" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label"><span class="obrigatorio">*</span>Telemóvel</label>
+                <input type="tel" class="form-control" id="phone" required>
+            </div>
+            <div class="col-md-6 mb-3">
+                <label class="form-label">Email</label>
+                <input type="email" class="form-control" id="email">
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex flex-column gap-2">
+            <button type="button" class="col-md-6 btn btn-secondary me-2 rounded-5" (click)="irParaHome()">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </button>
+            <button type="submit" class="col-md-6 btn btn-dark rounded-5 p-2">
+                <i class="fas fa-arrow-right me-2"></i>Avançar
+            </button>
+        </div>
+    </form>
+
+</div>

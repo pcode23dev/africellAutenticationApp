@@ -1,0 +1,9 @@
+.form-label{
+    font-size: .875rem;
+    color: #333;
+}
+
+.obrigatorio{
+    color: red;
+    margin-right: 2px;
+}

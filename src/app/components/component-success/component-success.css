@@ -1,0 +1,14 @@
+.success-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.icon-box {
+  font-size: 64px;
+  color: #28a745;
+}
