@@ -1,13 +1,15 @@
-<div class="pagina-inicial">
-  <h2 class="titulo">Cadastro Biomimético Africel</h2>
-  <p class="subtitulo">Antes de começar, verifique se você tem:</p>
-
-  <ul class="checklist">
+<app-component-header></app-component-header>
+<div class="container-fluid">
+ <div class="bg-body-secondary py-4 px-2 my-4">
+   <h2 class="titulo">Requisitos para avancar</h2>
+ </div>
+  <p class="subtitulo px-2">Antes de começar, verifique se você tem:</p>
+  <ul class="checklist px-2">
     <li><i class="fas fa-id-card me-2"></i> Bilhete de Identidade (BI) válido</li>
     <li><i class="fas fa-mobile-alt me-2"></i> Número Africel ativo</li>
     <li><i class="fas fa-camera me-2"></i> Rosto visível para reconhecimento facial</li>
     <li><i class="fas fa-sms me-2"></i> Acesso ao telefone para receber SMS</li>
   </ul>
 
-  <button class="btn-comecar mt-4" (click)="irParaCadastro()">Começar Cadastro</button>
+  <button class="btn btn-lg btn-primary  mt-4" (click)="irParaCadastro()">Começar Cadastro</button>
 </div>
