@@ -1,4 +1,4 @@
-import { Component, ElementRef, output, ViewChild } from '@angular/core';
+import { Component, ElementRef, output, ViewChild, OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-component-self',
@@ -6,8 +6,8 @@ import { Component, ElementRef, output, ViewChild } from '@angular/core';
   templateUrl: './component-self.html',
   styleUrl: './component-self.css'
 })
-export class ComponentSelf {
-   @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
+export class ComponentSelf implements OnDestroy {
+  @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
 
   imagemCapturada: string | null = null;
@@ -38,12 +38,9 @@ export class ComponentSelf {
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
       this.imagemCapturada = canvas.toDataURL('image/jpeg');
-      this.avancar()
-    }
-
-    // Para o stream
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
+      // Para o stream
+      this.pararStream();
+      this.avancar();
     }
   }
 
@@ -57,8 +54,22 @@ export class ComponentSelf {
   }
 
   onSubmitSection = output<number>();
-  
+
   avancar() {
     this.onSubmitSection.emit(1);
+  }
+
+  pararStream() {
+    if (this.stream) {
+      this.stream.getTracks().forEach(track => track.stop());
+      this.stream = null;
+      if (this.videoElement?.nativeElement) {
+        this.videoElement.nativeElement.srcObject = null;
+      }
+    }
+  }
+
+  ngOnDestroy() {
+    this.pararStream();
   }
 }

@@ -1,30 +1,39 @@
-import { Component, output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Output } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-component-form',
   templateUrl: './component-form.html',
   styleUrl: './component-form.css',
-  imports: [FormsModule]
+  standalone: true,
+  imports: [ReactiveFormsModule]
 })
-
 export class ComponentForm {
-  
-  formRef: any;
-  
-  onSubmitSection = output<number>();
-  
-  constructor(private router: Router) {}
-  
+
+  @Output() aoContinuar = new EventEmitter<any>(); // Use 'any' para enviar todos os dados
+
+  formulario: FormGroup;
+
+  constructor(private fb: FormBuilder, private router: Router) {
+    this.formulario = this.fb.group({
+      nome: ['', Validators.required],
+      apelido: [''],
+      biNumber: ['', Validators.required],
+      phone: ['', Validators.required],
+      email: ['']
+    });
+  }
+
+  onSubmit() {
+    if (this.formulario.valid) {
+      this.aoContinuar.emit(this.formulario.value);
+    } else {
+      this.formulario.markAllAsTouched();
+    }
+  }
+
   irParaHome() {
-    console.log('Navigating to home');
     this.router.navigate(['/']);
   }
-
-  onSubmit(ttt: any) {
-    this.onSubmitSection.emit(1);
-  }
-
-  
 }
