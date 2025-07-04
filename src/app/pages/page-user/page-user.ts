@@ -6,12 +6,14 @@ import { ComponentVersoUpload } from "../../components/component-verso-upload/co
 import { Router } from '@angular/router';
 import { ComponentForm } from "../../components/component-form/component-form";
 import { ComponentSelf } from "../../components/component-self/component-self";
+import { ComponentConfirm } from "../../components/component-confirm/component-confirm";
+import { ComponentSuccess } from "../../components/component-success/component-success";
 
 @Component({
   selector: 'app-page-user',
   templateUrl: './page-user.html',
   styleUrl: './page-user.css',
-  imports: [ComponentFronteUpload, ComponentHeader, ComponentProgressBar, ComponentVersoUpload, ComponentForm, ComponentSelf]
+  imports: [ComponentFronteUpload, ComponentHeader, ComponentProgressBar, ComponentVersoUpload, ComponentForm, ComponentSelf, ComponentConfirm, ComponentSuccess]
 })
 
 export class PageUser {
@@ -49,6 +51,15 @@ export class PageUser {
     this.dados.selfie = imagem;
     this.etapa = 4;
     console.log(this.dados);
+  }
 
+  avancarConfirmar(code: string) {
+    this.dados.codeConfirm = code;
+    this.etapa = 5;
+    console.log(this.dados);
+  }
+
+  finalizar(any: any){
+    this.router.navigate(['/']);
   }
 }

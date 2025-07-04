@@ -12,6 +12,8 @@
     } @else if (etapa === 3) {
     <app-component-self (aoContinuar)="avancarSelfie($event)" (aoVoltar)="voltar()"></app-component-self>
     }  @else if (etapa === 4) {
-    
+    <app-component-confirm (aoConfirmar)="avancarConfirmar($event)" (aoVoltar)="voltar()"></app-component-confirm>
+    } @else if(etapa  === 5){
+        <app-component-success (aoFinalizar)="finalizar(1)"></app-component-success>
     }
 </div>

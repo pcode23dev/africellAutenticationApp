@@ -7,16 +7,11 @@ import { Router } from '@angular/router';
   styleUrls: ['./component-success.css']
 })
 export class ComponentSuccess {
-  @Output() onSubmitSection = new EventEmitter<number>();
+  @Output() aoFinalizar = new EventEmitter<void>();
 
   constructor(private router: Router) {}
   
-  irParaHome() {
-    console.log('Navigating to home');
-    this.router.navigate(['/']);
-  }
   finalizar(): void {
-    this.onSubmitSection.emit(1);
-    this.irParaHome();
+    this.aoFinalizar.emit();
   }
 }

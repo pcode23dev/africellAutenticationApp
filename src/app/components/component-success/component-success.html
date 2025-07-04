@@ -1,10 +1,20 @@
-<div class="success-container text-center">
-  <div class="icon-box mb-4">
-    <i class="fas fa-check-circle"></i>
+<div class="step-container active" id="step4">
+  <div class="step-header">
+    <div class="step-number">✓</div>
+    <h2 class="step-title">Registro Concluído!</h2>
+    <p class="step-description">Seus documentos foram capturados com sucesso</p>
   </div>
 
-  <h4 class="mb-2">Tudo certo!</h4>
-  <p class="mb-4">Os seus dados foram confirmados com sucesso.</p>
+  <div class="alert alert-success">
+    <i class="fas fa-check-circle"></i> Documentos processados e salvos com sucesso!
+  </div>
 
-  <button class="btn btn-primary" (click)="finalizar()">Concluir</button>
+  <div class="text-center">
+    <i class="fas fa-shield-check" style="font-size: 64px; color: var(--success-color); margin: 20px 0;"></i>
+    <p>Seu contacto foi restrado com sucesso</p>
+  </div>
+
+  <button class="btn btn-primary" (click)="finalizar()">
+    Novo Registro <i class="fas fa-plus"></i>
+  </button>
 </div>

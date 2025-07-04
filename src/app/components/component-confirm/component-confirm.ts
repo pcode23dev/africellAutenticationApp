@@ -1,61 +1,72 @@
-import { Component, AfterViewInit, output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Output, QueryList, ViewChildren } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-component-confirm',
   templateUrl: './component-confirm.html',
-  styleUrls: ['./component-confirm.css']
+  styleUrls: ['./component-confirm.css'],
+  imports: [ReactiveFormsModule]
 })
-export class ComponentConfirm implements AfterViewInit {
-  ngAfterViewInit(): void {
-    const inputs = Array.from(document.querySelectorAll<HTMLInputElement>('.code-input'));
-    inputs[0].focus();
-    inputs.forEach((input, index) => {
-      input.addEventListener('input', (event: Event) => {
-        const current = event.target as HTMLInputElement;
-        const value = current.value;
+export class ComponentConfirm {
+  @ViewChildren('codeInput') codeInputs!: QueryList<ElementRef<HTMLInputElement>>;
+  @Output() aoConfirmar = new EventEmitter<string>();
 
-        // Apenas dígitos
-        if (!/^\d$/.test(value)) {
-          current.value = '';
-          return;
-        }
+  @Output() aoVoltar = new EventEmitter<void>();
 
-        // Move para o próximo input
-        if (index < inputs.length - 1) {
-          inputs[index + 1].focus();
-        }
-      });
+  voltar() {
+    this.aoVoltar.emit();
+  }
 
-      input.addEventListener('keydown', (event: KeyboardEvent) => {
-        if (event.key === 'Backspace' && !input.value && index > 0) {
-          inputs[index - 1].focus();
-        }
-      });
-    });
 
-    const form = document.querySelector('.codigo-form') as HTMLFormElement;
-    const message = document.getElementById('message') as HTMLElement;
+  codigoForm: FormGroup;
+  mensagem: string = '';
+  mensagemErro: string = '';
+  telefoneParcial = '...315';
 
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-
-      const code = inputs.map(input => input.value).join('');
-      if (code.length === 6) {
-        console.log('Código confirmado:', code);
-        message.textContent = 'Código confirmado com sucesso!';
-        message.style.color = 'green';
-        this.avancar();
-      
-      } else {
-        message.textContent = 'Por favor, insira todos os 6 dígitos.';
-        message.style.color = 'red';
-      }
+  constructor(private fb: FormBuilder) {
+    this.codigoForm = this.fb.group({
+      d0: ['', [Validators.required, Validators.pattern('\\d')]],
+      d1: ['', [Validators.required, Validators.pattern('\\d')]],
+      d2: ['', [Validators.required, Validators.pattern('\\d')]],
+      d3: ['', [Validators.required, Validators.pattern('\\d')]],
+      d4: ['', [Validators.required, Validators.pattern('\\d')]],
+      d5: ['', [Validators.required, Validators.pattern('\\d')]],
     });
   }
 
-  onSubmitSection = output<number>();
-  
-  avancar() {
-    this.onSubmitSection.emit(1);
+  onInput(event: any, idx: number) {
+    const input = event.target as HTMLInputElement;
+    if (!/^\d$/.test(input.value)) {
+      input.value = '';
+      this.codigoForm.get(`d${idx}`)?.setValue('');
+      return;
+    }
+    if (input.value && idx < 5) {
+      this.codeInputs.get(idx + 1)?.nativeElement.focus();
+    }
+  }
+
+  onKeyDown(event: KeyboardEvent, idx: number) {
+    const input = event.target as HTMLInputElement;
+    if (event.key === 'Backspace' && !input.value && idx > 0) {
+      this.codeInputs.get(idx - 1)?.nativeElement.focus();
+    }
+  }
+
+  ngAfterViewInit() {
+    // Foca no primeiro input ao abrir
+    setTimeout(() => this.codeInputs.first?.nativeElement.focus(), 0);
+  }
+
+  confirmar() {
+    if (this.codigoForm.valid) {
+      const code = Object.values(this.codigoForm.value).join('');
+      this.mensagem = 'Código confirmado com sucesso!';
+      this.mensagemErro = '';
+      this.aoConfirmar.emit(code);
+    } else {
+      this.mensagemErro = 'Por favor, insira todos os 6 dígitos.';
+      this.mensagem = '';
+    }
   }
 }
