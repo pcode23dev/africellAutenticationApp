@@ -2,13 +2,16 @@
     <app-component-header></app-component-header>
     <app-component-progress-bar></app-component-progress-bar>
     @if(etapa == 0){
-        <app-component-form (aoContinuar)="avancarForm($event)"></app-component-form>
+    <app-component-form (aoContinuar)="avancarForm($event)"></app-component-form>
     }
     @else if (etapa === 1) {
     <app-component-fronte-upload (aoContinuar)="avancarFrente($event)"
-                                    (aoVoltar)="voltar()"></app-component-fronte-upload>
+        (aoVoltar)="voltar()"></app-component-fronte-upload>
     } @else if (etapa === 2) {
-        <app-component-verso-upload (aoContinuar)="avancarVerso($event)"
-                                    (aoVoltar)="voltar()"></app-component-verso-upload>
+    <app-component-verso-upload (aoContinuar)="avancarVerso($event)" (aoVoltar)="voltar()"></app-component-verso-upload>
+    } @else if (etapa === 3) {
+    <app-component-self (aoContinuar)="avancarSelfie($event)" (aoVoltar)="voltar()"></app-component-self>
+    }  @else if (etapa === 4) {
+
     }
 </div>

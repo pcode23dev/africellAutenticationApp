@@ -1,4 +1,4 @@
-import { Component, ElementRef, output, ViewChild, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
 
 @Component({
   selector: 'app-component-self',
@@ -7,69 +7,75 @@ import { Component, ElementRef, output, ViewChild, OnDestroy } from '@angular/co
   styleUrl: './component-self.css'
 })
 export class ComponentSelf implements OnDestroy {
-  @ViewChild('video') videoElement!: ElementRef<HTMLVideoElement>;
-  @ViewChild('canvas', { static: false }) canvasElement!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
+  @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
 
-  imagemCapturada: string | null = null;
-  stream: MediaStream | null = null;
+  @Output() aoContinuar = new EventEmitter<string>();
+  @Output() aoVoltar = new EventEmitter<void>();
 
-  ngAfterViewInit() {
-    this.iniciarStream();
-  }
+  visualizacao: string | null = null;
+  erro: string | null = null;
+  cameraAtiva = false;
+  fluxo: MediaStream | null = null;
+  modoCamera: 'user' | 'environment' = 'user';
 
-  iniciarStream() {
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' } })
-      .then(stream => {
-        this.stream = stream;
-        this.videoElement.nativeElement.srcObject = stream;
-      })
-      .catch(error => {
-        console.error('Erro ao acessar a câmera:', error);
+  async abrirCamera() {
+    try {
+      this.fluxo = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: this.modoCamera }
       });
+      this.cameraAtiva = true;
+      setTimeout(() => {
+        if (this.video && this.video.nativeElement) {
+          this.video.nativeElement.srcObject = this.fluxo;
+        }
+      });
+      this.erro = null;
+    } catch (err) {
+      this.erro = 'Não foi possível acessar a câmera. Verifique as permissões.';
+      console.error(err);
+    }
   }
 
-  capturar() {
-    const video = this.videoElement.nativeElement;
-    const canvas = document.createElement('canvas');
+  capturarFoto() {
+    const video = this.video.nativeElement;
+    const canvas = this.canvas.nativeElement;
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
-
     const ctx = canvas.getContext('2d');
-    if (ctx) {
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      this.imagemCapturada = canvas.toDataURL('image/jpeg');
-      // Para o stream
-      this.pararStream();
-      this.avancar();
+    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
+    this.visualizacao = canvas.toDataURL('image/jpeg');
+    this.fecharCamera();
+  }
+
+  fecharCamera() {
+    if (this.fluxo) {
+      this.fluxo.getTracks().forEach(track => track.stop());
+      this.fluxo = null;
     }
+    this.cameraAtiva = false;
   }
 
-  repetirFoto() {
-    this.imagemCapturada = null;
-    this.iniciarStream();
+  trocarCamera() {
+    this.modoCamera = this.modoCamera === 'user' ? 'environment' : 'user';
+    this.fecharCamera();
+    this.abrirCamera();
   }
 
-  enviarImagem() {
-    console.log('Imagem capturada:', this.imagemCapturada);
+  tirarNovamente() {
+    this.visualizacao = null;
+    this.abrirCamera();
   }
 
-  onSubmitSection = output<number>();
-
-  avancar() {
-    this.onSubmitSection.emit(1);
+  continuar() {
+    this.aoContinuar.emit(this.visualizacao!);
   }
 
-  pararStream() {
-    if (this.stream) {
-      this.stream.getTracks().forEach(track => track.stop());
-      this.stream = null;
-      if (this.videoElement?.nativeElement) {
-        this.videoElement.nativeElement.srcObject = null;
-      }
-    }
+  voltar() {
+    this.aoVoltar.emit();
   }
 
   ngOnDestroy() {
-    this.pararStream();
+    this.fecharCamera();
   }
 }
