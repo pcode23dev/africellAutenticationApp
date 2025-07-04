@@ -17,7 +17,8 @@
     </div>
 
 
-    <div class="upload-area" id="upload-area">
+    @if (cameraAtiva === false) {
+    <div class="upload-area my-3" id="upload-area">
         <div class="upload-icon">
             <i class="fas fa-id-card"></i>
         </div>
@@ -25,22 +26,30 @@
         <div class="upload-subtext">Arraste o arquivo aqui ou use as opções abaixo</div>
     </div>
 
+    }
 
 
     <input #fileInput type="file" class="file-input" accept="image/*" (change)="aoSelecionarArquivo($event)">
 
     @if (cameraAtiva) {
-    <div class="camera-area">
+    <div class="camera-area my-3">
         <div class="camera-container" style="position: relative;">
             <video #video class="camera-video" autoplay playsinline></video>
             <div class="camera-overlay-retangular"></div>
             <canvas #canvas style="display: none;"></canvas>
         </div>
         <div class="camera-controls">
-            <div class="capture-btn" (click)="capturarFoto()">
+            <div class="capture-btn mb-3" (click)="capturarFoto()">
                 <i class="fas fa-camera"></i>
             </div>
-            <button type="button" (click)="fecharCamera()">Fechar Câmera</button>
+            <div class="camera-switch">
+                <button type="button" (click)="trocarCamera()">
+                    <i class="fas fa-sync-alt"></i> Trocar Câmera
+                </button>
+            </div>
+            <div class="camera-switch">
+                <button type="button" class="btn btn-outline-secondary" (click)="fecharCamera()">Fechar Câmera</button>
+            </div>
         </div>
     </div>
     }
