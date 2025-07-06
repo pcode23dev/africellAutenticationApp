@@ -56,6 +56,7 @@ export class ComponentFronteUpload implements OnDestroy {
 
   async abrirCamera() {
     try {
+      
       this.fluxo = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.modoCamera }
       });

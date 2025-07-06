@@ -24,11 +24,6 @@
             </div>
 
             <div class="col mb-3">
-                <label class="form-label">Apelido</label>
-                <input type="text" class="form-control py-3" formControlName="apelido" />
-            </div>
-
-            <div class="col mb-3">
                 <label class="form-label"><span class="obrigatorio">*</span> Número do BI</label>
                 <input type="text" class="form-control py-3" maxlength="14" formControlName="biNumber" required />
                 @if (campoInvalido('biNumber')) {
