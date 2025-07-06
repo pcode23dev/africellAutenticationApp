@@ -10,14 +10,17 @@ export class ComponentSelf implements OnDestroy {
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
 
-  @Output() aoContinuar = new EventEmitter<string>();
+  @Output() aoContinuar = new EventEmitter<File>();
   @Output() aoVoltar = new EventEmitter<void>();
+  @Output() aoCapturar = new EventEmitter<File>();
 
   visualizacao: string | null = null;
   erro: string | null = null;
   cameraAtiva = false;
   fluxo: MediaStream | null = null;
   modoCamera: 'user' | 'environment' = 'user';
+  arquivoSelecionado: File | null = null;
+
 
   async abrirCamera() {
     try {
@@ -42,9 +45,22 @@ export class ComponentSelf implements OnDestroy {
     const canvas = this.canvas.nativeElement;
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+
     const ctx = canvas.getContext('2d');
     ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    this.visualizacao = canvas.toDataURL('image/jpeg');
+
+    canvas.toBlob(blob => {
+      if (blob) {
+        this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
+        this.visualizacao = URL.createObjectURL(blob);
+        this.erro = null;
+      }
+    }, 'image/jpeg');
+
+    if (this.arquivoSelecionado) {
+      this.aoCapturar.emit(this.arquivoSelecionado);
+    }
+
     this.fecharCamera();
   }
 
@@ -68,7 +84,11 @@ export class ComponentSelf implements OnDestroy {
   }
 
   continuar() {
-    this.aoContinuar.emit(this.visualizacao!);
+    if (this.arquivoSelecionado) {
+      this.aoContinuar.emit(this.arquivoSelecionado);
+    } else {
+      this.erro = 'Nenhuma imagem foi selecionada.';
+    }
   }
 
   voltar() {

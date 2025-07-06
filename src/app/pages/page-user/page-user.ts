@@ -1,4 +1,4 @@
-import { Component, effect } from '@angular/core';
+import { Component, effect, inject } from '@angular/core';
 import { ComponentFronteUpload } from "../../components/component-fronte-upload/component-fronte-upload";
 import { ComponentHeader } from "../../components/component-header/component-header";
 import { ComponentProgressBar } from "../../components/component-progress-bar/component-progress-bar";
@@ -8,6 +8,8 @@ import { ComponentForm } from "../../components/component-form/component-form";
 import { ComponentSelf } from "../../components/component-self/component-self";
 import { ComponentConfirm } from "../../components/component-confirm/component-confirm";
 import { ComponentSuccess } from "../../components/component-success/component-success";
+import { DocumentoService } from '../../services/core/documentoServices';
+import { Console } from 'console';
 
 @Component({
   selector: 'app-page-user',
@@ -22,22 +24,21 @@ export class PageUser {
 
   etapa = 0;
   dados: any = {};
-
+  servicosUpload = inject(DocumentoService);
   avancarForm(dadosForm: any) {
     this.dados.form = dadosForm;
     this.etapa = 1;
     console.log(this.dados);
 
-
   }
 
-  avancarFrente(imagem: string) {
+  avancarFrente(imagem: File) {
     this.dados.frente = imagem;
     this.etapa = 2;
     console.log(this.dados);
   }
 
-  avancarVerso(imagem: string) {
+  avancarVerso(imagem: File) {
     this.dados.verso = imagem;
     this.etapa = 3;
     console.log(this.dados);
@@ -47,10 +48,11 @@ export class PageUser {
     if (this.etapa > 0) this.etapa--;
   }
 
-  avancarSelfie(imagem: string) {
+  avancarSelfie(imagem: File) {
     this.dados.selfie = imagem;
     this.etapa = 4;
     console.log(this.dados);
+    this.uploadImgem(this.dados);
   }
 
   avancarConfirmar(code: string) {
@@ -58,8 +60,30 @@ export class PageUser {
     this.etapa = 5;
     console.log(this.dados);
   }
+  uploadImgem(dados: any) {
+    const formData = new FormData();
 
-  finalizar(any: any){
+    formData.append('numero_bi', dados.form.numero_bi);
+    formData.append('data_emissao', dados.form.data_emissao);
+    formData.append('id_usuario', dados.form.id_usuario);
+
+    formData.append('frente', dados.frente); // tipo: File
+    formData.append('verso', dados.verso);
+    formData.append('selfie', dados.selfie);
+    console.log("update: ", this.dados);
+    
+    this.servicosUpload.criarDocumento(formData).subscribe({
+      next: res => {
+        console.log("Upload bem-sucedido", res);
+        this.etapa = 6; // por exemplo
+      },
+      error: err => {
+        console.error("Erro ao fazer upload", err);
+      }
+    });
+  }
+
+  finalizar(any: any) {
     this.router.navigate(['/']);
   }
 }

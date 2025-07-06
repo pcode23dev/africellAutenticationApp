@@ -10,7 +10,7 @@
     } @else if (etapa === 2) {
     <app-component-verso-upload (aoContinuar)="avancarVerso($event)" (aoVoltar)="voltar()"></app-component-verso-upload>
     } @else if (etapa === 3) {
-    <app-component-self (aoContinuar)="avancarSelfie($event)" (aoVoltar)="voltar()"></app-component-self>
+    <app-component-self (aoCapturar)="uploadImgem($event)" (aoContinuar)="avancarSelfie($event)" (aoVoltar)="voltar()"></app-component-self>
     }  @else if (etapa === 4) {
     <app-component-confirm (aoConfirmar)="avancarConfirmar($event)" (aoVoltar)="voltar()"></app-component-confirm>
     } @else if(etapa  === 5){

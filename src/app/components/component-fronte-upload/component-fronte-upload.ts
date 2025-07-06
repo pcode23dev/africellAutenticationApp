@@ -1,4 +1,4 @@
-import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, output } from '@angular/core';
 
 
 @Component({
@@ -12,9 +12,8 @@ export class ComponentFronteUpload implements OnDestroy {
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
 
-  @Output() aoContinuar = new EventEmitter<string>(); 
+  @Output() aoContinuar = new EventEmitter<File>();
   @Output() aoVoltar = new EventEmitter<void>();
-  
   voltar() {
     this.aoVoltar.emit();
   }
@@ -25,6 +24,8 @@ export class ComponentFronteUpload implements OnDestroy {
   cameraAtiva = false;
   fluxo: MediaStream | null = null;
   modoCamera: 'environment' | 'user' = 'environment';
+  arquivoSelecionado: File | null = null;
+
 
   abrirArquivo() {
     this.fileInput.nativeElement.click();
@@ -42,14 +43,16 @@ export class ComponentFronteUpload implements OnDestroy {
         this.erro = 'O arquivo deve ter no máximo 5MB.';
         return;
       }
+      this.arquivoSelecionado = arquivo; // ← importante!
       const leitor = new FileReader();
       leitor.onload = (e: any) => {
-        this.visualizacao = e.target.result;
+        this.visualizacao = e.target.result; // apenas visualização
         this.erro = null;
       };
       leitor.readAsDataURL(arquivo);
     }
   }
+
 
   async abrirCamera() {
     try {
@@ -78,11 +81,21 @@ export class ComponentFronteUpload implements OnDestroy {
     const canvas = this.canvas.nativeElement;
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
+
     const ctx = canvas.getContext('2d');
     ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-    this.visualizacao = canvas.toDataURL('image/jpeg');
+
+    canvas.toBlob(blob => {
+      if (blob) {
+        this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
+        this.visualizacao = URL.createObjectURL(blob);
+        this.erro = null;
+      }
+    }, 'image/jpeg');
+
     this.fecharCamera();
   }
+
 
   fecharCamera() {
     if (this.fluxo) {
@@ -105,10 +118,16 @@ export class ComponentFronteUpload implements OnDestroy {
   }
 
   continuar() {
-    this.aoContinuar.emit(this.visualizacao!);
+    if (this.arquivoSelecionado) {
+      this.aoContinuar.emit(this.arquivoSelecionado);
+    } else {
+      this.erro = 'Nenhuma imagem foi selecionada.';
+    }
   }
+
 
   ngOnDestroy() {
     this.fecharCamera();
   }
+
 }
