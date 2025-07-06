@@ -5,14 +5,13 @@
     </div>
 
     @if (!validado()) {
-    <div class="alert alert-warning w-100" id="resultForm">
+    <div class="alert alert-danger text-danger w-100" id="resultForm">
         Por favor, verifique os campos obrigatórios.
     </div>
     }
 
     <form [formGroup]="formulario" (ngSubmit)="onSubmit()" id="personalDataForm">
         <div class="d-flex flex-column">
-
             <div class="col mb-3">
                 <label class="form-label"><span class="obrigatorio">*</span> Nome</label>
                 <input type="text" class="form-control py-3" formControlName="nome" required />
@@ -52,8 +51,6 @@
                     <small class="text-danger">E-mail inválido.</small>
                 </div>
                 }
-
-
             </div>
 
         </div>

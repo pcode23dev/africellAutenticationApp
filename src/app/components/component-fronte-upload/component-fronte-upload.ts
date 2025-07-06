@@ -7,6 +7,7 @@ import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, outp
   templateUrl: './component-fronte-upload.html',
   styleUrl: './component-fronte-upload.css'
 })
+
 export class ComponentFronteUpload implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
