@@ -1,10 +1,10 @@
-import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy } from '@angular/core';
+import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-component-verso-upload',
-  imports: [],
   templateUrl: './component-verso-upload.html',
-  styleUrl: './component-verso-upload.css'
+  styleUrl: './component-verso-upload.css',
+  standalone: true
 })
 export class ComponentVersoUpload implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
@@ -21,53 +21,70 @@ export class ComponentVersoUpload implements OnDestroy {
   modoCamera: 'environment' | 'user' = 'environment';
   arquivoSelecionado: File | null = null;
 
-  abrirArquivo() {
+  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) {}
+
+  abrirArquivo(): void {
     this.fileInput.nativeElement.click();
   }
 
-  aoSelecionarArquivo(evento: Event) {
-    const input = evento.target as HTMLInputElement;
+  aoSelecionarArquivo(event: Event): void {
+    const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const arquivo = input.files[0];
+
       if (!arquivo.type.startsWith('image/')) {
-        this.erro = 'Por favor, selecione apenas arquivos de imagem.';
+        this.erro = 'Por favor, selecione uma imagem.';
         return;
       }
+
       if (arquivo.size > 5 * 1024 * 1024) {
-        this.erro = 'O arquivo deve ter no máximo 5MB.';
+        this.erro = 'Arquivo muito grande (máx 5MB).';
         return;
       }
-      this.arquivoSelecionado = arquivo; // ← importante!
+
+      this.arquivoSelecionado = arquivo;
+
       const leitor = new FileReader();
-      leitor.onload = (e: any) => {
-        this.visualizacao = e.target.result;
-        this.erro = null;
+      leitor.onload = () => {
+        this.ngZone.run(() => {
+          this.visualizacao = leitor.result as string;
+          this.erro = null;
+          this.cdr.detectChanges();
+        });
       };
       leitor.readAsDataURL(arquivo);
     }
   }
 
-  async abrirCamera() {
+  async abrirCamera(): Promise<void> {
     try {
       this.fluxo = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.modoCamera }
       });
+
       this.cameraAtiva = true;
-      setTimeout(() => {
-        if (this.video && this.video.nativeElement) {
-          this.video.nativeElement.srcObject = this.fluxo;
-        }
-      });
+      this.cdr.detectChanges();
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      if (this.video?.nativeElement) {
+        this.video.nativeElement.srcObject = this.fluxo;
+        this.video.nativeElement.onloadedmetadata = () => {
+          this.video.nativeElement.play();
+        };
+      }
+
       this.erro = null;
     } catch (err) {
-      this.erro = 'Não foi possível acessar a câmera. Verifique as permissões.';
+      this.erro = 'Erro ao acessar a câmera.';
       console.error(err);
     }
   }
 
-  capturarFoto() {
+  capturarFoto(): void {
     const video = this.video.nativeElement;
     const canvas = this.canvas.nativeElement;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -76,48 +93,52 @@ export class ComponentVersoUpload implements OnDestroy {
 
     canvas.toBlob(blob => {
       if (blob) {
-        this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
-        this.visualizacao = URL.createObjectURL(blob);
-        this.erro = null;
+        this.ngZone.run(() => {
+          this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
+          this.visualizacao = URL.createObjectURL(blob);
+          this.erro = null;
+          this.fecharCamera();
+          this.cdr.detectChanges();
+        });
       }
     }, 'image/jpeg');
-
-    this.fecharCamera();
   }
 
-  fecharCamera() {
+  fecharCamera(): void {
     if (this.fluxo) {
-      this.fluxo.getTracks().forEach(track => track.stop());
+      this.fluxo.getTracks().forEach(t => t.stop());
       this.fluxo = null;
     }
     this.cameraAtiva = false;
+    this.cdr.detectChanges();
   }
 
-  trocarCamera() {
+  trocarCamera(): void {
     this.modoCamera = this.modoCamera === 'environment' ? 'user' : 'environment';
     this.fecharCamera();
-    this.abrirCamera();
+    setTimeout(() => this.abrirCamera(), 100);
   }
 
-  removerPreview() {
+  removerPreview(): void {
     this.visualizacao = null;
     this.erro = null;
     this.fileInput.nativeElement.value = '';
+    this.cdr.detectChanges();
   }
 
-  continuar() {
+  continuar(): void {
     if (this.arquivoSelecionado) {
       this.aoContinuar.emit(this.arquivoSelecionado);
     } else {
-      this.erro = 'Nenhuma imagem foi selecionada.';
+      this.erro = 'Nenhuma imagem selecionada.';
     }
   }
 
-  voltar() {
+  voltar(): void {
     this.aoVoltar.emit();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.fecharCamera();
   }
 }

@@ -1,13 +1,11 @@
-import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, output } from '@angular/core';
-
+import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 
 @Component({
   selector: 'app-component-fronte-upload',
-  imports: [],
   templateUrl: './component-fronte-upload.html',
-  styleUrl: './component-fronte-upload.css'
+  styleUrl: './component-fronte-upload.css',
+  standalone: true
 })
-
 export class ComponentFronteUpload implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
@@ -15,10 +13,6 @@ export class ComponentFronteUpload implements OnDestroy {
 
   @Output() aoContinuar = new EventEmitter<File>();
   @Output() aoVoltar = new EventEmitter<void>();
-  voltar() {
-    this.aoVoltar.emit();
-  }
-
 
   visualizacao: string | null = null;
   erro: string | null = null;
@@ -27,60 +21,70 @@ export class ComponentFronteUpload implements OnDestroy {
   modoCamera: 'environment' | 'user' = 'environment';
   arquivoSelecionado: File | null = null;
 
+  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) {}
 
-  abrirArquivo() {
+  abrirArquivo(): void {
     this.fileInput.nativeElement.click();
   }
 
-  aoSelecionarArquivo(evento: Event) {
-    const input = evento.target as HTMLInputElement;
+  aoSelecionarArquivo(event: Event): void {
+    const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const arquivo = input.files[0];
+
       if (!arquivo.type.startsWith('image/')) {
-        this.erro = 'Por favor, selecione apenas arquivos de imagem.';
+        this.erro = 'Por favor, selecione uma imagem.';
         return;
       }
+
       if (arquivo.size > 5 * 1024 * 1024) {
-        this.erro = 'O arquivo deve ter no máximo 5MB.';
+        this.erro = 'Arquivo muito grande (máx 5MB).';
         return;
       }
-      this.arquivoSelecionado = arquivo; // ← importante!
+
+      this.arquivoSelecionado = arquivo;
+
       const leitor = new FileReader();
-      leitor.onload = (e: any) => {
-        this.visualizacao = e.target.result; // apenas visualização
-        this.erro = null;
+      leitor.onload = () => {
+        this.ngZone.run(() => {
+          this.visualizacao = leitor.result as string;
+          this.erro = null;
+          this.cdr.detectChanges();
+        });
       };
       leitor.readAsDataURL(arquivo);
     }
   }
 
-
-  async abrirCamera() {
+  async abrirCamera(): Promise<void> {
     try {
-      
       this.fluxo = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.modoCamera }
       });
 
-      this.cameraAtiva = true; // Ativa o bloco do vídeo
+      this.cameraAtiva = true;
+      this.cdr.detectChanges();
 
-      setTimeout(() => {
-        if (this.video && this.video.nativeElement) {
-          this.video.nativeElement.srcObject = this.fluxo;
-        }
-      });
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      if (this.video?.nativeElement) {
+        this.video.nativeElement.srcObject = this.fluxo;
+        this.video.nativeElement.onloadedmetadata = () => {
+          this.video.nativeElement.play();
+        };
+      }
 
       this.erro = null;
-      console.log("camera activa");
     } catch (err) {
-      this.erro = 'Não foi possível acessar a câmera. Verifique as permissões.';
+      this.erro = 'Erro ao acessar a câmera.';
       console.error(err);
     }
   }
 
-  capturarFoto() {
+  capturarFoto(): void {
     const video = this.video.nativeElement;
     const canvas = this.canvas.nativeElement;
+
     canvas.width = video.videoWidth;
     canvas.height = video.videoHeight;
 
@@ -89,47 +93,52 @@ export class ComponentFronteUpload implements OnDestroy {
 
     canvas.toBlob(blob => {
       if (blob) {
-        this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
-        this.visualizacao = URL.createObjectURL(blob);
-        this.erro = null;
+        this.ngZone.run(() => {
+          this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
+          this.visualizacao = URL.createObjectURL(blob);
+          this.erro = null;
+          this.fecharCamera();
+          this.cdr.detectChanges();
+        });
       }
     }, 'image/jpeg');
-
-    this.fecharCamera();
   }
 
-
-  fecharCamera() {
+  fecharCamera(): void {
     if (this.fluxo) {
-      this.fluxo.getTracks().forEach(track => track.stop());
+      this.fluxo.getTracks().forEach(t => t.stop());
       this.fluxo = null;
     }
     this.cameraAtiva = false;
+    this.cdr.detectChanges();
   }
 
-  trocarCamera() {
+  trocarCamera(): void {
     this.modoCamera = this.modoCamera === 'environment' ? 'user' : 'environment';
     this.fecharCamera();
-    this.abrirCamera();
+    setTimeout(() => this.abrirCamera(), 100);
   }
 
-  removerPreview() {
+  removerPreview(): void {
     this.visualizacao = null;
     this.erro = null;
     this.fileInput.nativeElement.value = '';
+    this.cdr.detectChanges();
   }
 
-  continuar() {
+  continuar(): void {
     if (this.arquivoSelecionado) {
       this.aoContinuar.emit(this.arquivoSelecionado);
     } else {
-      this.erro = 'Nenhuma imagem foi selecionada.';
+      this.erro = 'Nenhuma imagem selecionada.';
     }
   }
 
-
-  ngOnDestroy() {
-    this.fecharCamera();
+  voltar(): void {
+    this.aoVoltar.emit();
   }
 
+  ngOnDestroy(): void {
+    this.fecharCamera();
+  }
 }

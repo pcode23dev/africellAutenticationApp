@@ -16,18 +16,15 @@
         </button>
     </div>
 
-
     @if (cameraAtiva === false) {
     <div class="upload-area my-3" id="upload-area">
         <div class="upload-icon">
-            <i class="fas fa-id-card"></i>
+            <i class="fasfa-id-card"></i>
         </div>
         <div class="upload-text">Upload do Documento</div>
         <div class="upload-subtext">Arraste o arquivo aqui ou use as opções abaixo</div>
     </div>
-
     }
-
 
     <input #fileInput type="file" class="file-input" accept="image/*" (change)="aoSelecionarArquivo($event)">
 

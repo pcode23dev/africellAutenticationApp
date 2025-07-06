@@ -6,11 +6,11 @@ import { Observable } from "rxjs";
     providedIn: 'root'
 })
 export class DocumentoService {
-    baseUrl = "documento";
+    baseUrl = "";
     constructor(private http: HttpClient) {
-        this.baseUrl = "http://localhost:3000/documento";
+        this.baseUrl = "http://localhost:3000/utilizador";
     }
     criarDocumento(formData: FormData): Observable<any> {
-        return this.http.post(`${this.baseUrl}/criarDocumento`, formData);
+        return this.http.post(`${this.baseUrl}/registarNovo`, formData);
     }
 }

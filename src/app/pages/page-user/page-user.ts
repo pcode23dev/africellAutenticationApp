@@ -9,7 +9,6 @@ import { ComponentSelf } from "../../components/component-self/component-self";
 import { ComponentConfirm } from "../../components/component-confirm/component-confirm";
 import { ComponentSuccess } from "../../components/component-success/component-success";
 import { DocumentoService } from '../../services/core/documentoServices';
-import { Console } from 'console';
 
 @Component({
   selector: 'app-page-user',
@@ -62,17 +61,21 @@ export class PageUser {
   }
   uploadImgem(dados: any) {
     const formData = new FormData();
+    formData.append('form', JSON.stringify({
+      nome: this.dados.form.nome,
+      biNumber: this.dados.form.biNumber,
+      phone: this.dados.form.phone,
+      email: this.dados.form.email
+    }));
 
-    formData.append('numero_bi', dados.form.numero_bi);
-    formData.append('data_emissao', dados.form.data_emissao);
-    formData.append('id_usuario', dados.form.id_usuario);
+    formData.append('frente', this.dados.frente);
+    formData.append('verso', this.dados.verso);   
+    formData.append('selfie',this.dados.selfie); 
+    console.log(this.dados.selfie);
+    console.log("update: ",formData);
 
-    formData.append('frente', dados.frente); // tipo: File
-    formData.append('verso', dados.verso);
-    formData.append('selfie', dados.selfie);
-    console.log("update: ", this.dados);
-    
     this.servicosUpload.criarDocumento(formData).subscribe({
+
       next: res => {
         console.log("Upload bem-sucedido", res);
         this.etapa = 6; // por exemplo
