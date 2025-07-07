@@ -6,8 +6,12 @@ import { Observable } from 'rxjs';
 export interface IdAnalyzerResponse {
   cropped: string;
   croppedface: string;
-  result: any;
   matchrate: number;
+  result: any;
+  face: {
+    isIdentical: boolean;
+    confidence: string;
+  };
 }
 
 @Injectable({ providedIn: 'root' })

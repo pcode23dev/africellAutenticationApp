@@ -18,6 +18,7 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
     faceDocImg: string;
     selfieImg: string;
     result: any;
+    face: any;
     matchrate: number;
   }>();
 
@@ -84,32 +85,47 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
     }, 'image/jpeg');
   }
 
+
   continuar(): void {
     if (!this.arquivoSelecionado || !this.imagemDocumentoBase64) {
       this.erro = 'Documento ou selfie indisponível.';
       return;
     }
     this.erro = 'Validando...';
-    this.idAnalyzer.uploadAndMatch(
-      this.imagemDocumentoBase64,
-      this.selfieBase64
-    ).subscribe({
-      next: (res: IdAnalyzerResponse) => {
-        this.erro = null;
-        console.log("Retorno completo da API:", res);
-        this.aoFinalizar.emit({
-          docImg: res.cropped,
-          faceDocImg: res.croppedface,
-          selfieImg: this.selfieBase64,
-          result: res.result,
-          matchrate: res.matchrate
-        });
-      },
-      error: err => {
-        this.erro = 'Erro na verificação: ' + err.message;
-        console.error(err);
-      }
-    });
+
+    this.idAnalyzer.uploadAndMatch(this.imagemDocumentoBase64, this.selfieBase64)
+      .subscribe({
+        next: (res: IdAnalyzerResponse) => {
+          this.erro = null;
+          console.log("Retorno completo da API:", res);
+
+          const identical = res.face?.isIdentical;
+          const confidence = parseFloat(res.face?.confidence || '0');
+
+          if (identical && confidence >= 0.5) {
+            // Avança com feedback positivo
+            this.erro = '✅ Selfie e documento correspondem.';
+            setTimeout(() => {
+              this.erro = null;
+              this.aoFinalizar.emit({
+                docImg: res.cropped,
+                faceDocImg: res.croppedface,
+                selfieImg: this.selfieBase64,
+                result: res.result,
+                face: res.face,
+                matchrate: res.matchrate
+              });
+            }, 1000);
+          } else {
+            // Feedback de falha
+            this.erro = '❌ A selfie não corresponde ao documento. Tente novamente.';
+          }
+        },
+        error: err => {
+          this.erro = 'Erro na verificação: ' + err.message;
+          console.error(err);
+        }
+      });
   }
 
   tirarNovamente(): void {
