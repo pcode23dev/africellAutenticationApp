@@ -75,13 +75,14 @@ export class PageUser {
       }
     };
 
-    console.log('Dados preparados:', this.dados);
+  
     this.etapa = 3;
   }
 
 
   avancarConfirmar(code: string) {
     this.dados.codeConfirm = code;
+    console.log('Dados preparados:', this.dados);
     this.etapa = 4;
   }
 
