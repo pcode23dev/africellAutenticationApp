@@ -1,8 +1,11 @@
 import {
   Component, ElementRef, ViewChild, Output, EventEmitter,
-  AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone, Input
+  AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone, Input,
+  signal
 } from '@angular/core';
 import { IdAnalyzerService, IdAnalyzerResponse } from '../../services/id-analyzer.service';
+import { HttpClient } from '@angular/common/http';
+
 
 @Component({
   selector: 'app-component-self',
@@ -12,6 +15,7 @@ import { IdAnalyzerService, IdAnalyzerResponse } from '../../services/id-analyze
 })
 export class ComponentSelf implements AfterViewInit, OnDestroy {
   @Input() imagemDocumentoBase64!: string;
+  @Input() telefone = '';
   @Output() aoVoltar = new EventEmitter<void>();
   @Output() aoFinalizar = new EventEmitter<{
     docImg: string;
@@ -26,14 +30,15 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
 
   visualizacao: string | null = null;
-  erro: string | null = null;
   cameraAtiva = false;
   fluxo: MediaStream | null = null;
   modoCamera: 'user' | 'environment' = 'user';
   arquivoSelecionado: File | null = null;
   selfieBase64: string = '';
+  loading = signal<boolean>(false);
+  erro = signal<string>('');
 
-  constructor(
+  constructor(private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private idAnalyzer: IdAnalyzerService
@@ -54,9 +59,9 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
       const videoEl = this.video.nativeElement;
       videoEl.srcObject = this.fluxo;
       videoEl.onloadedmetadata = () => videoEl.play();
-      this.erro = null;
+      this.erro.set("");
     } catch (err: any) {
-      this.erro = 'Não foi possível acessar a câmera: ' + err.message;
+      this.erro.set('Não foi possível acessar a câmera: ' + err.message);
     }
   }
 
@@ -88,25 +93,29 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
 
   continuar(): void {
     if (!this.arquivoSelecionado || !this.imagemDocumentoBase64) {
-      this.erro = 'Documento ou selfie indisponível.';
+      this.erro.set('Documento ou selfie indisponível.');
       return;
     }
-    this.erro = 'Validando...';
+    this.loading.set(true);
+    this.erro.set('Validando...');
 
     this.idAnalyzer.uploadAndMatch(this.imagemDocumentoBase64, this.selfieBase64)
       .subscribe({
         next: (res: IdAnalyzerResponse) => {
-          this.erro = null;
+          this.erro.set("");
+          this.loading.set(false);
           console.log("Retorno completo da API:", res);
 
-          const identical = res.face?.isIdentical;
+          const identical = res.face?.isIdentical || null;
           const confidence = parseFloat(res.face?.confidence || '0');
 
           if (identical && confidence >= 0.5) {
             // Avança com feedback positivo
-            this.erro = '✅ Selfie e documento correspondem.';
+            this.erro.set('✅ Selfie e documento correspondem.');
+            console.log("NUmero de telefone: ", this.telefone);
+
             setTimeout(() => {
-              this.erro = null;
+              this.erro.set("");
               this.aoFinalizar.emit({
                 docImg: res.cropped,
                 faceDocImg: res.croppedface,
@@ -116,14 +125,17 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
                 matchrate: res.matchrate
               });
             }, 1000);
+
           } else {
             // Feedback de falha
-            this.erro = '❌ A selfie não corresponde ao documento. Tente novamente.';
+            this.loading.set(false);
+            this.erro.set('❌ A selfie não corresponde ao documento. Tente novamente.');
           }
         },
         error: err => {
-          this.erro = 'Erro na verificação: ' + err.message;
-          console.error(err);
+          this.erro.set(err.message);
+          console.log("Telefone erro: ", this.telefone);
+          console.error("Erro pedro:", err);
         }
       });
   }

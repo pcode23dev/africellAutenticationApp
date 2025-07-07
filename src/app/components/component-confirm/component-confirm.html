@@ -1,14 +1,30 @@
 <div class="codigo-container">
 
   <div class="step-header">
-        <div class="step-number">4</div>
-        <h2 class="step-title">Confirme o seu código</h2>
-        <p class="step-description"> Enviamos um código para o seu contacto  <strong> {{ telefoneParcial }}</strong></p>
-    </div>
-  <h5 class="mb-3 text-center"></h5>
+    <div class="step-number">4</div>
+    <h2 class="step-title">Confirme o seu código</h2>
+    <p class="step-description">
+      Enviamos um código para o seu contacto <strong>{{ telefone }}</strong>
+    </p>
+  </div>
 
-  
+  @if (loading()) {
+  <div class="overlay">
+    <div class="spinner"></div>
+    <p class="text-light mt-3">{{ mensagem }}</p>
+  </div>
+  }
 
+  @if (mensagem) {
+  <div class="message text-info bg-info-subtle p-2 rounded-2">{{ mensagem }}</div>
+  }
+  @if (mensagemErro) {
+  <div class="message text-danger bg-danger-subtle p-2 rounded-2">{{ mensagemErro }}</div>
+  }
+
+
+
+  @if (!loading()) {
   <form [formGroup]="codigoForm" class="codigo-form py-4" (ngSubmit)="confirmar()">
     <div class="code-inputs">
       <input #codeInput type="text" class="code-input rounded-2" maxlength="1" formControlName="d0"
@@ -26,17 +42,11 @@
         (input)="onInput($event, 5)" (keydown)="onKeyDown($event, 5)">
     </div>
 
-    <div class="my-3"></div>
-    @if (mensagem) {
-    <div class="message text-info w-100 bg-info-subtle  p-2 rounded-2">{{ mensagem }}</div>
-    }
-    @if (mensagemErro) {
-    <div class="message text-danger bg-danger-subtle w-10 p-2  rounded-2">{{ mensagemErro }}</div>
-    }
 
     <button type="submit" class="btn btn-primary mt-4 w-100">Confirmar</button>
-    <button class="btn btn-secondary" type="button" (click)="voltar()">
+    <button type="button" class="btn btn-secondary mt-2" (click)="voltar()">
       <i class="fas fa-arrow-left"></i> Voltar
     </button>
   </form>
+  }
 </div>

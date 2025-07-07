@@ -1,5 +1,6 @@
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, signal, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-component-confirm',
@@ -9,22 +10,21 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 })
 export class ComponentConfirm {
   @ViewChildren('codeInput') codeInputs!: QueryList<ElementRef<HTMLInputElement>>;
-  @Output() aoConfirmar = new EventEmitter<string>();
+  @Input() telefone = '';  // agora setado pelo pai
   @Input() dados!: any;
 
+  @Output() aoConfirmar = new EventEmitter<string>();
   @Output() aoVoltar = new EventEmitter<void>();
 
-  voltar() {
-    this.aoVoltar.emit();
-  }
-
-
   codigoForm: FormGroup;
-  mensagem: string = '';
-  mensagemErro: string = '';
-  telefoneParcial = '...315';
+  mensagem = '';
+  mensagemErro = '';
+  carregandoEnviar = false;
+  carregandoConfirmar = false;
 
-  constructor(private fb: FormBuilder) {
+  loading = signal<boolean>(false);
+
+  constructor(private fb: FormBuilder, private http: HttpClient) {
     this.codigoForm = this.fb.group({
       d0: ['', [Validators.required, Validators.pattern('\\d')]],
       d1: ['', [Validators.required, Validators.pattern('\\d')]],
@@ -32,6 +32,36 @@ export class ComponentConfirm {
       d3: ['', [Validators.required, Validators.pattern('\\d')]],
       d4: ['', [Validators.required, Validators.pattern('\\d')]],
       d5: ['', [Validators.required, Validators.pattern('\\d')]],
+    });
+  }
+
+  /*
+  ngOnInit() {
+    this.enviarCodigo();
+  }*/
+
+  enviarCodigo() {
+    this.carregandoEnviar = true;
+    this.mensagem = 'Enviando código...';
+    this.http.post<{ status: string }>(
+      'http://localhost:3000/send-otp',
+      { phone: this.telefone }
+    ).subscribe({
+      next: res => {
+        this.carregandoEnviar = false;
+        if (res.status === 'pending') {
+          this.mensagem = '📨 Código enviado!';
+          setTimeout(() =>
+            this.codeInputs.first?.nativeElement.focus(), 0
+          );
+        } else {
+          this.mensagemErro = '❌ Erro ao enviar código. Tente novamente.';
+        }
+      },
+      error: err => {
+        this.carregandoEnviar = false;
+        this.mensagemErro = '❌ Erro ao enviar código: ' + err.message;
+      }
     });
   }
 
@@ -55,19 +85,32 @@ export class ComponentConfirm {
   }
 
   ngAfterViewInit() {
-    // Foca no primeiro input ao abrir
     setTimeout(() => this.codeInputs.first?.nativeElement.focus(), 0);
   }
 
   confirmar() {
-    if (this.codigoForm.valid) {
-      const code = Object.values(this.codigoForm.value).join('');
-      this.mensagem = 'Código confirmado com sucesso!';
-      this.mensagemErro = '';
-      this.aoConfirmar.emit(code);
-    } else {
-      this.mensagemErro = 'Por favor, insira todos os 6 dígitos.';
-      this.mensagem = '';
+    if (this.codigoForm.invalid) {
+      this.mensagemErro = 'Por favor, insira os 6 dígitos.';
+      return;
     }
+
+    this.loading.set(true);
+
+    const code = Object.values(this.codigoForm.value).join('');
+    this.carregandoConfirmar = true;
+    this.mensagem = 'Verificando código...';
+    this.mensagemErro = '';
+
+    this.aoConfirmar.emit(code);
+    
+  }
+
+  voltar() {
+    this.aoVoltar.emit();
   }
 }
+
+
+/*
+
+*/
