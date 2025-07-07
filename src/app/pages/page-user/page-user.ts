@@ -55,6 +55,7 @@ export class PageUser {
     faceDocImg: string;
     selfieImg: string;
     result: any;
+    face: { isIdentical: boolean; confidence: string };
     matchrate: number;
   }) {
     const api = res.result;
