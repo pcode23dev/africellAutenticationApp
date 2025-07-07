@@ -82,6 +82,9 @@ export class PageUser {
 
   avancarConfirmar(code: string) {
     this.dados.codeConfirm = code;
+    this.documentoService.criarDocumento(this.dados).subscribe(resp=>{
+      console.log(resp);
+    });
     console.log('Dados preparados:', this.dados);
     this.etapa = 4;
   }

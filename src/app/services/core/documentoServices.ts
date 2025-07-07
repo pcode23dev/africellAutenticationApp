@@ -10,7 +10,7 @@ export class DocumentoService {
     constructor(private http: HttpClient) {
         this.baseUrl = "http://localhost:3000/utilizador";
     }
-    criarDocumento(formData: FormData): Observable<any> {
+    criarDocumento(formData: any): Observable<any> {
         return this.http.post(`${this.baseUrl}/registarNovo`, formData);
     }
 }
