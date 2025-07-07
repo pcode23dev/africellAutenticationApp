@@ -1,14 +1,8 @@
 import {
-  Component,
-  ElementRef,
-  ViewChild,
-  Output,
-  EventEmitter,
-  OnDestroy,
-  AfterViewInit,
-  ChangeDetectorRef,
-  NgZone
+  Component, ElementRef, ViewChild, Output, EventEmitter,
+  AfterViewInit, OnDestroy, ChangeDetectorRef, NgZone, Input
 } from '@angular/core';
+import { IdAnalyzerService, IdAnalyzerResponse } from '../../services/id-analyzer.service';
 
 @Component({
   selector: 'app-component-self',
@@ -17,12 +11,18 @@ import {
   standalone: true
 })
 export class ComponentSelf implements AfterViewInit, OnDestroy {
+  @Input() imagemDocumentoBase64!: string;
+  @Output() aoVoltar = new EventEmitter<void>();
+  @Output() aoFinalizar = new EventEmitter<{
+    docImg: string;
+    faceDocImg: string;
+    selfieImg: string;
+    result: any;
+    matchrate: number;
+  }>();
+
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
-
-  @Output() aoContinuar = new EventEmitter<File>();
-  @Output() aoVoltar = new EventEmitter<void>();
-  @Output() aoCapturar = new EventEmitter<File>();
 
   visualizacao: string | null = null;
   erro: string | null = null;
@@ -30,11 +30,15 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
   fluxo: MediaStream | null = null;
   modoCamera: 'user' | 'environment' = 'user';
   arquivoSelecionado: File | null = null;
+  selfieBase64: string = '';
 
-  constructor(private cdr: ChangeDetectorRef, private ngZone: NgZone) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private idAnalyzer: IdAnalyzerService
+  ) { }
 
   ngAfterViewInit(): void {
-    // Garante que a câmera será iniciada automaticamente ao carregar a view
     setTimeout(() => this.abrirCamera(), 100);
   }
 
@@ -43,65 +47,69 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
       this.fluxo = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.modoCamera }
       });
-
       this.cameraAtiva = true;
-      this.cdr.detectChanges(); // Força o Angular a redesenhar o DOM
-
-      setTimeout(() => {
-        const videoEl = this.video.nativeElement;
-        videoEl.srcObject = this.fluxo;
-        videoEl.onloadedmetadata = () => {
-          videoEl.play();
-        };
-      }, 100);
-
+      this.cdr.detectChanges();
+      await new Promise(r => setTimeout(r, 100));
+      const videoEl = this.video.nativeElement;
+      videoEl.srcObject = this.fluxo;
+      videoEl.onloadedmetadata = () => videoEl.play();
       this.erro = null;
-    } catch (err) {
-      this.erro = 'Não foi possível acessar a câmera. Verifique as permissões.';
-      console.error(err);
+    } catch (err: any) {
+      this.erro = 'Não foi possível acessar a câmera: ' + err.message;
     }
   }
 
   capturarFoto(): void {
-    const video = this.video.nativeElement;
-    const canvas = this.canvas.nativeElement;
+    const videoEl = this.video.nativeElement;
+    const canvasEl = this.canvas.nativeElement;
+    canvasEl.width = videoEl.videoWidth;
+    canvasEl.height = videoEl.videoHeight;
+    const ctx = canvasEl.getContext('2d');
+    ctx?.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(blob => {
+    canvasEl.toBlob(blob => {
       if (blob) {
-        this.ngZone.run(() => {
-          const foto = new File([blob], 'foto_selfie.jpg', { type: 'image/jpeg' });
-          this.arquivoSelecionado = foto;
-          this.visualizacao = URL.createObjectURL(foto);
-          this.erro = null;
-
-          this.aoCapturar.emit(foto);
-          this.cdr.detectChanges(); // Atualiza a view com o preview
-
-          this.fecharCamera(); // ← Só fecha após garantir captura
-        });
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          this.ngZone.run(() => {
+            this.visualizacao = reader.result as string;
+            this.selfieBase64 = this.visualizacao.split(',')[1];
+            this.arquivoSelecionado = new File([blob], 'selfie.jpg', { type: 'image/jpeg' });
+            this.fecharCamera();
+            this.cdr.detectChanges();
+          });
+        };
+        reader.readAsDataURL(blob);
       }
     }, 'image/jpeg');
   }
 
-  fecharCamera(): void {
-    if (this.fluxo) {
-      this.fluxo.getTracks().forEach(track => track.stop());
-      this.fluxo = null;
+  continuar(): void {
+    if (!this.arquivoSelecionado || !this.imagemDocumentoBase64) {
+      this.erro = 'Documento ou selfie indisponível.';
+      return;
     }
-    this.cameraAtiva = false;
-    this.cdr.detectChanges();
-  }
-
-  trocarCamera(): void {
-    this.modoCamera = this.modoCamera === 'user' ? 'environment' : 'user';
-    this.fecharCamera();
-    setTimeout(() => this.abrirCamera(), 200);
+    this.erro = 'Validando...';
+    this.idAnalyzer.uploadAndMatch(
+      this.imagemDocumentoBase64,
+      this.selfieBase64
+    ).subscribe({
+      next: (res: IdAnalyzerResponse) => {
+        this.erro = null;
+        console.log("Retorno completo da API:", res);
+        this.aoFinalizar.emit({
+          docImg: res.cropped,
+          faceDocImg: res.croppedface,
+          selfieImg: this.selfieBase64,
+          result: res.result,
+          matchrate: res.matchrate
+        });
+      },
+      error: err => {
+        this.erro = 'Erro na verificação: ' + err.message;
+        console.error(err);
+      }
+    });
   }
 
   tirarNovamente(): void {
@@ -111,12 +119,17 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
     setTimeout(() => this.abrirCamera(), 100);
   }
 
-  continuar(): void {
-    if (this.arquivoSelecionado) {
-      this.aoContinuar.emit(this.arquivoSelecionado);
-    } else {
-      this.erro = 'Nenhuma imagem foi capturada.';
-    }
+  fecharCamera(): void {
+    if (this.fluxo) this.fluxo.getTracks().forEach(t => t.stop());
+    this.fluxo = null;
+    this.cameraAtiva = false;
+    this.cdr.detectChanges();
+  }
+
+  trocarCamera(): void {
+    this.modoCamera = this.modoCamera === 'user' ? 'environment' : 'user';
+    this.fecharCamera();
+    setTimeout(() => this.abrirCamera(), 200);
   }
 
   voltar(): void {

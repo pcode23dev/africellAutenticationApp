@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
 @Component({
@@ -10,6 +10,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 export class ComponentConfirm {
   @ViewChildren('codeInput') codeInputs!: QueryList<ElementRef<HTMLInputElement>>;
   @Output() aoConfirmar = new EventEmitter<string>();
+  @Input() dados!: any;
 
   @Output() aoVoltar = new EventEmitter<void>();
 

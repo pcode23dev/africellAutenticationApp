@@ -1,4 +1,7 @@
-import { Component, ElementRef, ViewChild, Output, EventEmitter, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import {
+  Component, ElementRef, ViewChild, Output, EventEmitter,
+  OnDestroy, ChangeDetectorRef, NgZone
+} from '@angular/core';
 
 @Component({
   selector: 'app-component-fronte-upload',
@@ -29,21 +32,17 @@ export class ComponentFronteUpload implements OnDestroy {
 
   aoSelecionarArquivo(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files?.length) {
       const arquivo = input.files[0];
-
       if (!arquivo.type.startsWith('image/')) {
         this.erro = 'Por favor, selecione uma imagem.';
         return;
       }
-
       if (arquivo.size > 5 * 1024 * 1024) {
         this.erro = 'Arquivo muito grande (máx 5MB).';
         return;
       }
-
       this.arquivoSelecionado = arquivo;
-
       const leitor = new FileReader();
       leitor.onload = () => {
         this.ngZone.run(() => {
@@ -61,40 +60,31 @@ export class ComponentFronteUpload implements OnDestroy {
       this.fluxo = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: this.modoCamera }
       });
-
       this.cameraAtiva = true;
       this.cdr.detectChanges();
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
+      await new Promise(r => setTimeout(r, 100));
       if (this.video?.nativeElement) {
         this.video.nativeElement.srcObject = this.fluxo;
-        this.video.nativeElement.onloadedmetadata = () => {
-          this.video.nativeElement.play();
-        };
+        this.video.nativeElement.onloadedmetadata = () => { this.video.nativeElement.play(); };
       }
-
       this.erro = null;
-    } catch (err) {
-      this.erro = 'Erro ao acessar a câmera.';
-      console.error(err);
+    } catch (err: any) {
+      this.erro = 'Erro ao acessar a câmera: ' + err.message;
     }
   }
 
   capturarFoto(): void {
-    const video = this.video.nativeElement;
-    const canvas = this.canvas.nativeElement;
+    const videoEl = this.video.nativeElement;
+    const canvasEl = this.canvas.nativeElement;
+    canvasEl.width = videoEl.videoWidth;
+    canvasEl.height = videoEl.videoHeight;
+    const ctx = canvasEl.getContext('2d');
+    ctx?.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
 
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-
-    const ctx = canvas.getContext('2d');
-    ctx?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    canvas.toBlob(blob => {
+    canvasEl.toBlob(blob => {
       if (blob) {
         this.ngZone.run(() => {
-          this.arquivoSelecionado = new File([blob], 'foto_camera.jpg', { type: 'image/jpeg' });
+          this.arquivoSelecionado = new File([blob], 'frente_documento.jpg', { type: 'image/jpeg' });
           this.visualizacao = URL.createObjectURL(blob);
           this.erro = null;
           this.fecharCamera();
@@ -105,10 +95,8 @@ export class ComponentFronteUpload implements OnDestroy {
   }
 
   fecharCamera(): void {
-    if (this.fluxo) {
-      this.fluxo.getTracks().forEach(t => t.stop());
-      this.fluxo = null;
-    }
+    if (this.fluxo) this.fluxo.getTracks().forEach(t => t.stop());
+    this.fluxo = null;
     this.cameraAtiva = false;
     this.cdr.detectChanges();
   }

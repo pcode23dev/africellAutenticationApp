@@ -1,19 +1,27 @@
 <div class="container-fluid">
-    <app-component-header></app-component-header>
-    <app-component-progress-bar></app-component-progress-bar>
-    @if(etapa == 0){
+  <app-component-header></app-component-header>
+  <app-component-progress-bar></app-component-progress-bar>
+
+  @if (etapa === 0) {
     <app-component-form (aoContinuar)="avancarForm($event)"></app-component-form>
-    }
-    @else if (etapa === 1) {
-    <app-component-fronte-upload (aoContinuar)="avancarFrente($event)"
-        (aoVoltar)="voltar()"></app-component-fronte-upload>
-    } @else if (etapa === 2) {
-    <app-component-verso-upload (aoContinuar)="avancarVerso($event)" (aoVoltar)="voltar()"></app-component-verso-upload>
-    } @else if (etapa === 3) {
-    <app-component-self (aoCapturar)="uploadImgem($event)" (aoContinuar)="avancarSelfie($event)" (aoVoltar)="voltar()"></app-component-self>
-    }  @else if (etapa === 4) {
-    <app-component-confirm (aoConfirmar)="avancarConfirmar($event)" (aoVoltar)="voltar()"></app-component-confirm>
-    } @else if(etapa  === 5){
-        <app-component-success (aoFinalizar)="finalizar(1)"></app-component-success>
-    }
+  } @else if (etapa === 1) {
+    <app-component-fronte-upload
+      (aoContinuar)="avancarFrente($event)"
+      (aoVoltar)="voltar()">
+    </app-component-fronte-upload>
+  } @else if (etapa === 2) {
+    <app-component-self
+      [imagemDocumentoBase64]="visualizacaoDocumento"
+      (aoFinalizar)="onSelfieFinalizada($event)"
+      (aoVoltar)="voltar()">
+    </app-component-self>
+  } @else if (etapa === 3) {
+    <app-component-confirm
+      [dados]="dados"
+      (aoConfirmar)="avancarConfirmar($event)"
+      (aoVoltar)="voltar()">
+    </app-component-confirm>
+  } @else if (etapa === 4) {
+    <app-component-success (aoFinalizar)="finalizar()"></app-component-success>
+  }
 </div>

@@ -13,28 +13,8 @@
     <form [formGroup]="formulario" (ngSubmit)="onSubmit()" id="personalDataForm">
         <div class="d-flex flex-column">
             <div class="col mb-3">
-                <label class="form-label"><span class="obrigatorio">*</span> Nome</label>
-                <input type="text" class="form-control py-3" formControlName="nome" required />
-                @if (campoInvalido('nome')) {
-                <div class="text-danger p-2">
-                    <small>Nome é obrigatório.</small>
-                </div>
-                }
-            </div>
-
-            <div class="col mb-3">
-                <label class="form-label"><span class="obrigatorio">*</span> Número do BI</label>
-                <input type="text" class="form-control py-3" maxlength="14" formControlName="biNumber" required />
-                @if (campoInvalido('biNumber')) {
-                <div class="text-danger p-2">
-                    <small>Número do BI inválido</small>
-                </div>
-                }
-            </div>
-
-            <div class="col mb-3">
                 <label class="form-label"><span class="obrigatorio">*</span> Telemóvel</label>
-                <input type="tel" class="form-control py-3" maxlength="9" formControlName="phone" required />
+                <input type="tel" class="form-control py-3" maxlength="9" formControlName="phone" />
                 @if (campoInvalido('phone')) {
                 <div class="text-danger p-2">
                     <small>Número de telemóvel inválido</small>
