@@ -2,30 +2,19 @@
     <div class="step-header">
         <div class="step-number">1</div>
         <h2 class="step-title">Dados Pessoais</h2>
-        <p class="step-description">Por favor, preencha os seus dados pessoais.</p>
+        <p class="step-description">Por favor digite o numero de telefone para confirmar a sua identidade</p>
     </div>
     <form [formGroup]="formulario" (ngSubmit)="onSubmit()" id="personalDataForm">
         <div class="d-flex flex-column">
             <div class="col mb-3">
                 <label class="form-label"><span class="obrigatorio">*</span> Telemóvel</label>
-                <input type="tel" class="form-control py-3" maxlength="9" formControlName="phone" />
-                @if (campoInvalido('phone')) {
+                <input type="tel" class="form-control py-3" maxlength="9" formControlName="telefone" />
+                @if (campoInvalido('telefone')) {
                 <div class="text-danger p-2">
                     <small>Número de telemóvel inválido</small>
                 </div>
                 }
             </div>
-
-            <div class="col mb-3">
-                <label class="form-label"><span class="obrigatorio">* </span>Email</label>
-                <input type="email  " class="form-control py-3" formControlName="email" />
-                @if (campoInvalido('email')) {
-                <div class="p-2">
-                    <small class="text-danger">E-mail inválido.</small>
-                </div>
-                }
-            </div>
-
         </div>
 
         <div class="d-flex flex-column gap-3 my-3">

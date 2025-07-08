@@ -6,8 +6,8 @@ import { ComponentProgressBar } from '../../components/component-progress-bar/co
 import { ComponentFronteUpload } from '../../components/component-fronte-upload/component-fronte-upload';
 import { ComponentConfirm } from '../../components/component-confirm/component-confirm';
 import { ComponentForm } from '../../components/component-form/component-form';
-import { ComponentSelf } from '../../components/component-self/component-self';
 import { ComponentSuccess } from '../../components/component-success/component-success';
+import { ComponentSelf } from "../../components/component-self/component-self";
 
 @Component({
   selector: 'app-page-user',
@@ -16,9 +16,10 @@ import { ComponentSuccess } from '../../components/component-success/component-s
   imports: [
     ComponentHeader, ComponentProgressBar,
     ComponentForm, ComponentFronteUpload,
-    ComponentSelf, ComponentConfirm,
-    ComponentSuccess
-  ]
+    ComponentConfirm,
+    ComponentSuccess,
+    ComponentSelf
+]
 })
 export class PageUser {
 
@@ -32,8 +33,10 @@ export class PageUser {
 
   avancarForm(form: any) {
     this.dados.form = form;
-    this.inpTel.set(this.dados.form.phone);
+    this.inpTel.set(this.dados.form.phone)
     this.etapa = 1;
+      console.log("etapa: ", this.etapa);
+
   }
 
   avancarFrente(file: File) {
@@ -42,6 +45,7 @@ export class PageUser {
     this.toBase64(file).then(b64 => {
       this.visualizacaoDocumento = b64;  // Base64 com prefixo data:image
       this.etapa = 2;  // só vamos para selfie quando o Base64 estiver pronto
+      console.log("etapa: ", this.etapa);
     });
   }
 
@@ -88,6 +92,7 @@ export class PageUser {
     this.uploadFinal();
     console.log('Dados preparados:', this.dados);
     this.etapa = 4;
+    console.log("etapa: ", this.etapa);
   }
 
   finalizar() {
@@ -123,7 +128,6 @@ export class PageUser {
     });
   }
 
-
   private dataURLtoFile(dataURL: string, filename: string): File {
     const base64 = dataURL.includes(',')
       ? dataURL.split(',')[1].replace(/\s/g, '')
@@ -137,6 +141,5 @@ export class PageUser {
     }
     return new File([u8arr], filename, { type: 'image/jpeg' });
   }
-
 
 }

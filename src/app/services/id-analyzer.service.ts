@@ -32,4 +32,16 @@ export class IdAnalyzerService {
     };
     return this.http.post<IdAnalyzerResponse>(this.endpoint, payload);
   }
+
+  // Apenas para carregar documento e obter os dados (ex: número de BI)
+  uploadDocumento(docBase64: string): Observable<any> {
+    const payload = {
+      apikey: 'pzvEPa9yO238lNHAshnjKzztFVi17RII',
+      file_base64: docBase64,
+      outputimage: false,
+      outputface: false,
+      outputmode: 'raw',
+    };
+    return this.http.post<any>(this.endpoint, payload);
+  }
 }
