@@ -36,7 +36,7 @@ export class IdAnalyzerService {
   // Apenas para carregar documento e obter os dados (ex: número de BI)
   uploadDocumento(docBase64: string): Observable<any> {
     const payload = {
-      apikey: 'pzvEPa9yO238lNHAshnjKzztFVi17RII',
+      apikey: 'yW2KmUre0sqSJPi1BIMEeZRQbZoHFk5O',
       file_base64: docBase64,
       outputimage: false,
       outputface: false,

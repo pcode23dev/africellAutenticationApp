@@ -2,19 +2,32 @@
   <app-component-header></app-component-header>
   <app-component-progress-bar></app-component-progress-bar>
 
+  <!-- ETAPA 0: FORMULÁRIO -->
   @if (etapa === 0) {
-    <app-component-form-registrado (aoContinuar)="avancarForm($event)"></app-component-form-registrado>
-  } @else if (etapa === 1) {
-    <app-component-upload-doc-registrado
-      (aoContinuar)="avancarFrente($event)"
-      (aoVoltar)="voltar()">
-    </app-component-upload-doc-registrado>
-  } @else if (etapa === 2) {
-    <div class="m-4">
-      <app-component-view-registrado>
-    </app-component-view-registrado>
-    </div>
-  } @else if (etapa === 3) {
-    <app-component-success (aoFinalizar)="finalizar()"></app-component-success>
+  <app-component-form-registrado (aoContinuar)="avancarForm($event)">
+  </app-component-form-registrado>
+  }
+
+  <!-- ETAPA 1: UPLOAD DO DOCUMENTO -->
+  @else if (etapa === 1) {
+  <app-component-upload-doc-registrado (aoContinuar)="avancarFrente($event)" (aoVoltar)="voltar()">
+  </app-component-upload-doc-registrado>
+  }
+
+  <!-- ETAPA 2: VIEW DO REGISTADO COM BI -->
+  @else if (etapa === 2) {
+  <app-component-view-registrado [dados]="userRe()" (aoVoltar)="voltar()">
+  </app-component-view-registrado>
+  }
+
+  <!-- ETAPA 3: CÓDIGO DE CONFIRMAÇÃO (caso exista) -->
+  @else if (etapa === 3) {
+  <div>Etapa de confirmação de código aqui</div>
+  }
+
+  <!-- ETAPA 4: SUCESSO -->
+  @else if (etapa === 4) {
+  <app-component-success (aoFinalizar)="finalizar()">
+  </app-component-success>
   }
 </div>

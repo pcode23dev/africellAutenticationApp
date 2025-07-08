@@ -21,20 +21,27 @@ export class PageUserRegistrado {
   dados: any = {};
   visualizacaoDocumento: string = '';
   private documentoService = inject(DocumentoService);
+  private usuarioExistenteService = inject(DocumentoService)
   private router = inject(Router);
   @Output() inpTel = signal<string>('');
+  @Output() userRe = signal<any>({});
 
   avancarForm(form: any) {
     this.dados.form = form;
     this.inpTel.set(this.dados.form.phone)
+    this.userRe.set(this.dados);
     this.etapa = 1;
     console.log("etapa: ", this.etapa,"\n  dasdos", this.dados);
   }
 
   avancarFrente(bi: string) {
     this.dados.form.biNumber = bi;
+    this.userRe.set(this.dados);
     this.etapa = 2;  
     console.log("etapa: ", this.etapa, "\ndadaos " ,this.dados);
+  }
+
+  avancarViews(){
 
   }
 
@@ -60,6 +67,7 @@ export class PageUserRegistrado {
     this.dados.form.nome = apiRes.firstName + ' ' + apiRes.lastName;
     this.dados.form.biNumber = apiRes.documentNumber;
   }
+  
 
   async uploadFinal() {
     const fd = new FormData();

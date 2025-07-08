@@ -8,7 +8,6 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
   standalone: true,
   imports: [
     ReactiveFormsModule,    // para FormBuilder, FormGroup, Validators
-    HttpClientModule,       // para HttpClient
     RouterModule            // para Router
   ],
   templateUrl: './component-confirm.html',
