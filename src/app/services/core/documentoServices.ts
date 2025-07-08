@@ -13,4 +13,10 @@ export class DocumentoService {
     criarDocumento(formData: any): Observable<any> {
         return this.http.post(`${this.baseUrl}/registarNovo`, formData);
     }
+    encontarUsuarioBI(formData: any): Observable<any> {
+        return this.http.post(`${this.baseUrl}/encontarPornumero`, formData);
+    }
+     RegistarUsuario(formData: any): Observable<any> {
+        return this.http.post(`${this.baseUrl}/registarExistente`, formData);
+    }
 }
