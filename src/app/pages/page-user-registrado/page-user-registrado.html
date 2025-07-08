@@ -5,18 +5,14 @@
   @if (etapa === 0) {
     <app-component-form-registrado (aoContinuar)="avancarForm($event)"></app-component-form-registrado>
   } @else if (etapa === 1) {
-    <app-component-fronte-upload
+    <app-component-upload-doc-registrado
       (aoContinuar)="avancarFrente($event)"
       (aoVoltar)="voltar()">
-    </app-component-fronte-upload>
+    </app-component-upload-doc-registrado>
   } @else if (etapa === 2) {
     <div class="m-4">
-      <app-component-confirm
-     [telefone]="inpTel()"
-      [dados]="dados"
-      (aoConfirmar)="avancarConfirmar($event)"
-      (aoVoltar)="voltar()">
-    </app-component-confirm>
+      <app-component-view-registrado>
+    </app-component-view-registrado>
     </div>
   } @else if (etapa === 3) {
     <app-component-success (aoFinalizar)="finalizar()"></app-component-success>

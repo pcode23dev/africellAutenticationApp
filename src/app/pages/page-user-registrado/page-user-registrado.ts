@@ -1,16 +1,16 @@
 import { Component, inject, Output, signal } from '@angular/core';
 import { ComponentHeader } from "../../components/component-header/component-header";
 import { ComponentProgressBar } from "../../components/component-progress-bar/component-progress-bar";
-import { ComponentFronteUpload } from "../../components/component-fronte-upload/component-fronte-upload";
-import { ComponentConfirm } from "../../components/component-confirm/component-confirm";
 import { ComponentSuccess } from "../../components/component-success/component-success";
 import { DocumentoService } from '../../services/core/documentoServices';
 import { Router } from '@angular/router';
 import { ComponentFormRegistrado } from "../../components/component-form-registrado/component-form-registrado";
+import { ComponentViewRegistrado } from "../../components/component-view-registrado/component-view-registrado";
+import { ComponentUploadDocRegistrado } from "../../components/component-upload-doc-registrado/component-upload-doc-registrado";
 
 @Component({
   selector: 'app-page-user-registrado',
-  imports: [ComponentHeader, ComponentProgressBar, ComponentFronteUpload, ComponentConfirm, ComponentSuccess, ComponentFormRegistrado],
+  imports: [ComponentHeader, ComponentProgressBar, ComponentSuccess, ComponentFormRegistrado, ComponentViewRegistrado, ComponentUploadDocRegistrado],
   templateUrl: './page-user-registrado.html',
   styleUrl: './page-user-registrado.css'
 })
@@ -28,46 +28,18 @@ export class PageUserRegistrado {
     this.dados.form = form;
     this.inpTel.set(this.dados.form.phone)
     this.etapa = 1;
-      console.log("etapa: ", this.etapa);
+    console.log("etapa: ", this.etapa,"\n  dasdos", this.dados);
   }
 
-  avancarFrente(file: File) {
-    this.etapa = 2;  // só vamos para selfie quando o Base64 estiver pronto
-    console.log("etapa: ", this.etapa);
+  avancarFrente(bi: string) {
+    this.dados.form.biNumber = bi;
+    this.etapa = 2;  
+    console.log("etapa: ", this.etapa, "\ndadaos " ,this.dados);
 
   }
-
 
   voltar() {
     if (this.etapa > 0) this.etapa--;
-  }
-
-  onSelfieFinalizada(res: {
-    docImg: string;
-    faceDocImg: string;
-    selfieImg: string;
-    result: any;
-    face: { isIdentical: boolean; confidence: string };
-    matchrate: number;
-  }) {
-    const api = res.result;
-
-    this.dados = {
-      form: {
-        nome: api.firstName + ' ' + api.lastName,
-        nacionalidade: api.nationality_full,
-        biNumber: api.documentNumber,
-        telefone: this.dados.form.phone,
-        email: this.dados.form.email
-      },
-      sideDocumento: api.documentSide,
-      arquivos: {
-        fileDocCropped: this.dataURLtoFile(res.docImg, 'doc_cropped.jpg'),
-        fileFaceCropped: this.dataURLtoFile(res.faceDocImg, 'face_cropped.jpg'),
-        fileSelfieCropped: this.dataURLtoFile(res.selfieImg, 'selfie_cropped.jpg')
-      }
-    };
-    this.etapa = 3;
   }
 
 
