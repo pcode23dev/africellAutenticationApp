@@ -1,5 +1,4 @@
 import { Component, inject, Input, OnInit, signal } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop'; // para converter Observable em signal se desejar
 import { DocumentoService } from '../../services/core/documentoServices';
 
 @Component({
@@ -18,8 +17,11 @@ export class ComponentViewRegistrado implements OnInit {
   ngOnInit() {
     console.log("registrado ", this.dados);
     this.usuarioExistenteService.encontarUsuarioBI(this.dados).subscribe(resp=>{
-      console.log(resp);
+       this.usuarioExistenteService.RegistarUsuario(this.dados).subscribe(resp=>{
+            console.log(resp);
+       })
     })
+    
 
     console.log("finish ", this.dados);
 
