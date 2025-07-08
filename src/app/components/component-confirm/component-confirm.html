@@ -4,29 +4,27 @@
     <div class="step-number">4</div>
     <h2 class="step-title">Confirme o seu código</h2>
     <p class="step-description">
-      Enviamos um código para o seu contacto <strong>{{ telefone }}</strong>
+      Enviamos um código para  <strong>{{ tel() }}</strong>
     </p>
   </div>
 
   @if (loading()) {
-  <div class="overlay">
-    <div class="spinner"></div>
-    <p class="text-light mt-3">{{ mensagem }}</p>
+  <div class="spinner " role="status">
+    <span class="visually-hidden">Carregando...</span>
   </div>
+  <p class="mt-3">{{ mensagem() }}</p>
   }
 
-  @if (mensagem) {
-  <div class="message text-info bg-info-subtle p-2 rounded-2">{{ mensagem }}</div>
-  }
-  @if (mensagemErro) {
-  <div class="message text-danger bg-danger-subtle p-2 rounded-2">{{ mensagemErro }}</div>
+
+  @if (mensagemErro()) {
+  <div class="message text-danger bg-danger-subtle p-2 rounded-2">{{ mensagemErro() }}</div>
   }
 
 
 
   @if (!loading()) {
   <form [formGroup]="codigoForm" class="codigo-form py-4" (ngSubmit)="confirmar()">
-    <div class="code-inputs">
+    <div class="d-flex align-content-center">
       <input #codeInput type="text" class="code-input rounded-2" maxlength="1" formControlName="d0"
         (input)="onInput($event, 0)" (keydown)="onKeyDown($event, 0)">
       <input #codeInput type="text" class="code-input rounded-2" maxlength="1" formControlName="d1"

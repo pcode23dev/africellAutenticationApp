@@ -18,7 +18,7 @@ export class ComponentForm {
   constructor(private fb: FormBuilder, private router: Router) {
     this.formulario = this.fb.group({
       phone: ['', [Validators.required, Validators.pattern(/^[9][1-579]\d{7}$/)]],
-      email: ['', [Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
+      email: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/)]]
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, Output, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { DocumentoService } from '../../services/core/documentoServices';
 import { ComponentHeader } from '../../components/component-header/component-header';
@@ -28,9 +28,11 @@ export class PageUser {
   visualizacaoDocumento: string = '';
   private documentoService = inject(DocumentoService);
   private router = inject(Router);
+  @Output() inpTel = signal<string>('');
 
   avancarForm(form: any) {
     this.dados.form = form;
+    this.inpTel.set(this.dados.form.phone);
     this.etapa = 1;
   }
 

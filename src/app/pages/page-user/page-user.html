@@ -11,18 +11,19 @@
     </app-component-fronte-upload>
   } @else if (etapa === 2) {
     <app-component-self
-     [telefone]="dados.form.phone"
       [imagemDocumentoBase64]="visualizacaoDocumento"
       (aoFinalizar)="onSelfieFinalizada($event)"
       (aoVoltar)="voltar()">
     </app-component-self>
   } @else if (etapa === 3) {
-    <app-component-confirm
-     [telefone]="dados.form.phone"
+    <div class="m-4">
+      <app-component-confirm
+     [telefone]="inpTel()"
       [dados]="dados"
       (aoConfirmar)="avancarConfirmar($event)"
       (aoVoltar)="voltar()">
     </app-component-confirm>
+    </div>
   } @else if (etapa === 4) {
     <app-component-success (aoFinalizar)="finalizar()"></app-component-success>
   }

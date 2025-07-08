@@ -15,7 +15,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class ComponentSelf implements AfterViewInit, OnDestroy {
   @Input() imagemDocumentoBase64!: string;
-  @Input() telefone = '';
   @Output() aoVoltar = new EventEmitter<void>();
   @Output() aoFinalizar = new EventEmitter<{
     docImg: string;
@@ -90,7 +89,6 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
     }, 'image/jpeg');
   }
 
-
   continuar(): void {
     if (!this.arquivoSelecionado || !this.imagemDocumentoBase64) {
       this.erro.set('Documento ou selfie indisponível.');
@@ -112,7 +110,6 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
           if (identical && confidence >= 0.5) {
             // Avança com feedback positivo
             this.erro.set('✅ Selfie e documento correspondem.');
-            console.log("NUmero de telefone: ", this.telefone);
 
             setTimeout(() => {
               this.erro.set("");
@@ -134,7 +131,6 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
         },
         error: err => {
           this.erro.set(err.message);
-          console.log("Telefone erro: ", this.telefone);
           console.error("Erro pedro:", err);
         }
       });

@@ -23,10 +23,9 @@
             </div>
 
             <div class="col mb-3">
-                <label class="form-label">Email</label>
+                <label class="form-label"><span class="obrigatorio">* </span>Email</label>
                 <input type="email  " class="form-control py-3" formControlName="email" />
-                @if (formulario.get('email')?.touched && formulario.get('email')?.invalid &&
-                formulario.get('email')?.value) {
+                @if (campoInvalido('email')) {
                 <div class="p-2">
                     <small class="text-danger">E-mail inválido.</small>
                 </div>
