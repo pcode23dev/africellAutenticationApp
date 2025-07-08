@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ComponentVersoUpload } from './component-verso-upload';
+import { ComponentFormRegistrado } from './component-form-registrado';
 
-describe('ComponentVersoUpload', () => {
-  let component: ComponentVersoUpload;
-  let fixture: ComponentFixture<ComponentVersoUpload>;
+describe('ComponentFormRegistrado', () => {
+  let component: ComponentFormRegistrado;
+  let fixture: ComponentFixture<ComponentFormRegistrado>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [ComponentVersoUpload]
+      imports: [ComponentFormRegistrado]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(ComponentVersoUpload);
+    fixture = TestBed.createComponent(ComponentFormRegistrado);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

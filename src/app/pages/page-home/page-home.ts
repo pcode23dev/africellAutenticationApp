@@ -14,4 +14,7 @@ export class PageHome {
   irParaCadastro() {
     this.router.navigate(['/usuario']);
   }
+  irParaAddCadastro() {
+    this.router.navigate(['/usuarioRegistrado']);
+  }
 }
