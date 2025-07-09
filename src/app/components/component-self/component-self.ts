@@ -5,6 +5,7 @@ import {
 } from '@angular/core';
 import { IdAnalyzerService, IdAnalyzerResponse } from '../../services/id-analyzer.service';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -37,7 +38,8 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
   loading = signal<boolean>(false);
   erro = signal<string>('');
 
-  constructor(private http: HttpClient,
+  constructor(
+    private route: Router,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private idAnalyzer: IdAnalyzerService
@@ -104,8 +106,13 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
           this.loading.set(false);
           console.log("Retorno completo da API:", res);
 
+          // Verifica se há erro lógico dentro da resposta (evita undefined)
+          const erroApi = (res as any)?.error;
+
           const identical = res.face?.isIdentical || null;
           const confidence = parseFloat(res.face?.confidence || '0');
+
+          // Verifica se a API retornou um erro lógico dentro do JSON
 
           if (identical && confidence >= 0.5) {
             // Avança com feedback positivo
@@ -123,6 +130,11 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
               });
             }, 1000);
 
+          } else if (erroApi && erroApi.message) {
+            this.erro.set(`❌ Erro da API: ${erroApi.message}`);
+            setTimeout(() => {
+              this.route.navigate(['/']);
+            }, 5000);
           } else {
             // Feedback de falha
             this.loading.set(false);
@@ -130,8 +142,21 @@ export class ComponentSelf implements AfterViewInit, OnDestroy {
           }
         },
         error: err => {
-          this.erro.set(err.message);
-          console.error("Erro pedro:", err);
+          this.loading.set(false);
+
+          // Tenta extrair mensagem do corpo da resposta
+          let msg = 'Erro desconhecido.';
+
+          if (err.error?.error?.message) {
+            msg = err.error.error.message; // ← mensagem real do IdAnalyzer
+          } else if (err.error?.message) {
+            msg = err.error.message;
+          } else if (err.message) {
+            msg = err.message;
+          }
+
+          this.erro.set('❌ Erro ao validar documento: ' + msg);
+          console.error("Erro detalhado:", err);
         }
       });
   }

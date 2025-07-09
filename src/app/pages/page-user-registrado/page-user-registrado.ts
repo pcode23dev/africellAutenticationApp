@@ -21,10 +21,10 @@ export class PageUserRegistrado {
   dados: any = {};
   visualizacaoDocumento: string = '';
   private documentoService = inject(DocumentoService);
-  private usuarioExistenteService = inject(DocumentoService)
   private router = inject(Router);
   @Output() inpTel = signal<string>('');
   @Output() userRe = signal<any>({});
+  @Output() confirma = signal<any | null>(null);
 
   avancarForm(form: any) {
     this.dados.form = form;
@@ -41,8 +41,10 @@ export class PageUserRegistrado {
     console.log("etapa: ", this.etapa, "\ndadaos " ,this.dados);
   }
 
-  avancarViews(){
-
+  avancarViews(mensagem: string){
+    console.log(mensagem);
+    this.confirma.set(mensagem);
+    this.etapa++;
   }
 
   voltar() {
@@ -50,13 +52,13 @@ export class PageUserRegistrado {
   }
 
 
-  avancarConfirmar(code: string) {
-    this.dados.codeConfirm = code;
-    this.uploadFinal();
-    console.log('Dados preparados:', this.dados);
-    this.etapa = 4;
-    console.log("etapa: ", this.etapa);
-  }
+  // avancarConfirmar(code: string) {
+  //   this.dados.codeConfirm = code;
+  //   this.uploadFinal();
+  //   console.log('Dados preparados:', this.dados);
+  //   this.etapa = 4;
+  //   console.log("etapa: ", this.etapa);
+  // }
 
   finalizar() {
     this.router.navigate(['/']);
@@ -68,41 +70,4 @@ export class PageUserRegistrado {
     this.dados.form.biNumber = apiRes.documentNumber;
   }
   
-
-  async uploadFinal() {
-    const fd = new FormData();
-    fd.append('form', JSON.stringify(this.dados.form));
-    fd.append('sideDocumento', this.dados.sideDocumento);
-    fd.append('fileDocCropped', this.dados.arquivos.fileDocCropped);
-    fd.append('fileFaceCropped', this.dados.arquivos.fileFaceCropped);
-    fd.append('fileSelfieCropped', this.dados.arquivos.fileSelfieCropped);
-
-    this.documentoService.criarDocumento(fd).subscribe({
-      next: () => this.etapa = 4,
-      error: err => console.error('Erro no envio final', err)
-    });
-  }
-
-
-  private toBase64(file: File): Promise<string> {
-    return new Promise(resolve => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.readAsDataURL(file);
-    });
-  }
-
-  private dataURLtoFile(dataURL: string, filename: string): File {
-    const base64 = dataURL.includes(',')
-      ? dataURL.split(',')[1].replace(/\s/g, '')
-      : dataURL.replace(/\s/g, '');
-
-    const binary = window.atob(base64);
-    const len = binary.length;
-    const u8arr = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      u8arr[i] = binary.charCodeAt(i);
-    }
-    return new File([u8arr], filename, { type: 'image/jpeg' });
-  }
 }

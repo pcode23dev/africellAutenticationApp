@@ -1,4 +1,4 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 
 @Component({
@@ -6,9 +6,14 @@ import { Router } from '@angular/router';
   templateUrl: './component-success.html',
   styleUrls: ['./component-success.css']
 })
-export class ComponentSuccess {
+export class ComponentSuccess implements OnInit {
   @Output() aoFinalizar = new EventEmitter<void>();
+  @Input() msg!: any;
 
+  ngOnInit(): void {
+      this.msg.set(this.msg);
+  }
+  
   constructor(private router: Router) {}
   
   finalizar(): void {

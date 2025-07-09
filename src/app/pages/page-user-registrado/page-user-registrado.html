@@ -16,18 +16,20 @@
 
   <!-- ETAPA 2: VIEW DO REGISTADO COM BI -->
   @else if (etapa === 2) {
-  <app-component-view-registrado [dados]="userRe()" (aoVoltar)="voltar()">
+  <app-component-view-registrado (aoCOntinuar)="avancarViews($event)" [tel]="inpTel()" [dados]="userRe()" (aoVoltar)="voltar()">
   </app-component-view-registrado>
   }
 
   <!-- ETAPA 3: CÓDIGO DE CONFIRMAÇÃO (caso exista) -->
   @else if (etapa === 3) {
-  <div>Etapa de confirmação de código aqui</div>
-  }
-
-  <!-- ETAPA 4: SUCESSO -->
-  @else if (etapa === 4) {
-  <app-component-success (aoFinalizar)="finalizar()">
+  <!-- <div>Etapa de confirmação de código aqui</div> -->
+    <app-component-success [msg]="confirma()" (aoFinalizar)="finalizar()">
   </app-component-success>
   }
+
+  <!-- ETAPA 4: SUCESSO
+  @else if (etapa === 4) {
+   <app-component-success (aoFinalizar)="finalizar()">
+  </app-component-success>
+  } -->
 </div>
