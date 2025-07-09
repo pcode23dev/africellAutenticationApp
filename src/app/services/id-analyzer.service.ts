@@ -22,7 +22,7 @@ export class IdAnalyzerService {
 
   uploadAndMatch(docBase64: string, selfieBase64: string): Observable<IdAnalyzerResponse> {
     const payload = {
-      apikey: 'pzvEPa9yO238lNHAshnjKzztFVi17RII',
+      apikey: 'yH1dSMbHNoIvqHJ8SrJq0QGZW6qAJB8s',
       file_base64: docBase64,
       face_base64: selfieBase64,
       outputimage: true,

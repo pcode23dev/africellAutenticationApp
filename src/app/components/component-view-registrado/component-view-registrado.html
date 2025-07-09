@@ -32,11 +32,11 @@
     <div id="carouselBiometrico" class="carousel slide my-4 mx-auto" data-bs-ride="carousel" style="max-width: 280px;">
         <div class="carousel-inner text-center">
             <div class="carousel-item active">
-                <img src="http://localhost:3000/uploads/documento_bi_1751957079819_fileDocCropped.jpg"
+                <img src="http://localhost:3000/uploads/{{userDados()?.usurio.imagem_bi_frente}}"
                     class="d-block mx-auto rounded shadow-sm"  alt="Frente do BI" style="width: 200px;">
             </div>
             <div class="carousel-item">
-                <img src="http://localhost:3000/uploads/documento_bi_1751957079827_fileSelfieCropped.jpg"
+                <img src="http://localhost:3000/uploads/{{userDados()?.usurio.selfie}}"
                     class="d-block mx-auto rounded shadow-sm"  alt="Selfie" style="width: 200px;">
             </div>
         </div>

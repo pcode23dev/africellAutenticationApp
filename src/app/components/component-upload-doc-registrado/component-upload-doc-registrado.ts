@@ -1,6 +1,7 @@
 import {
   Component, ElementRef, ViewChild, Output, EventEmitter,
-  OnDestroy, ChangeDetectorRef, NgZone
+  OnDestroy, ChangeDetectorRef, NgZone,
+  signal
 } from '@angular/core';
 import { inject } from '@angular/core';
 import { IdAnalyzerService } from '../../services/id-analyzer.service'; // Caminho corrigido!
@@ -18,6 +19,8 @@ export class ComponentUploadDocRegistrado implements OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
   @ViewChild('video') video!: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas!: ElementRef<HTMLCanvasElement>;
+  @Output() carregando = signal<boolean>(true);
+
 
   @Output() aoContinuar = new EventEmitter<string>(); // Corrigido para string (número do BI)
   @Output() aoVoltar = new EventEmitter<void>();
